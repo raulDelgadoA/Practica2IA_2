@@ -201,30 +201,17 @@ namespace GrupoH
                 _qTable[state] = InitializeState(state);
             }
 
-            // solo acciones válidas (no muro)
-            var validActions = _qTable[state]
-                .Where(a => a.Value > -90000f)
-                .Select(a => a.Key)
-                .ToList();
-
-            if (validActions.Count == 0)
-                return -1;
-
             if (_random.NextDouble() < _parametros.epsilon)
             {
-                // acción válida aleatoria
+                var validActions = _qTable[state].Keys.ToList();
                 return validActions[_random.Next(validActions.Count)];
             }
             else
             {
-                // mejor acción válida
-                return _qTable[state]
-                    .Where(a => a.Value > -90000f)
-                    .Aggregate((max, cur) => cur.Value > max.Value ? cur : max)
-                    .Key;
+                var bestAction = _qTable[state];
+                return MaxByValue(bestAction).Key;
             }
         }
-
 
         private Dictionary<int, float> InitializeState(
             (bool North, bool South, bool East, bool West,
