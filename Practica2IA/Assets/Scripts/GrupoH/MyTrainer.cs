@@ -74,7 +74,7 @@ namespace GrupoH
 
                 if (!_qTable.ContainsKey(state))
                 {
-                    _qTable[state] = InitializeState();
+                    _qTable[state] = InitializeState(state);
                 }
             }
             Debug.Log($"Tabla Q Inicializada completa con {_qTable.Count} estados.");
@@ -128,7 +128,7 @@ namespace GrupoH
 
             if (!_qTable.ContainsKey(nextState))
             {
-                _qTable[nextState] = InitializeState();
+                _qTable[nextState] = InitializeState(nextState);
             }
 
             float maxFutureQ = _qTable[nextState].Values.Max();
@@ -196,10 +196,9 @@ namespace GrupoH
 
         private int SelectAction((bool, bool, bool, bool, bool, bool, bool, bool) state)
         {
-
             if (!_qTable.ContainsKey(state))
             {
-                _qTable[state] = InitializeState();
+                _qTable[state] = InitializeState(state);
             }
 
             if (_random.NextDouble() < _parametros.epsilon)
@@ -214,15 +213,27 @@ namespace GrupoH
             }
         }
 
-        private Dictionary<int, float> InitializeState()
+        private Dictionary<int, float> InitializeState(
+            (bool North, bool South, bool East, bool West,
+             bool FromNorth, bool FromSouth, bool FromEast, bool FromWest) state)
         {
-            var state = new Dictionary<int, float>();
-            foreach (int action in new[] { (int)Directions.Up, (int)Directions.Down, (int)Directions.Right, (int)Directions.Left })
-            {
-                state[action] = 0.0f;
-            }
-            return state;
+            var actions = new Dictionary<int, float>();
+
+            actions[(int)Directions.Up] =
+                state.North ? 0.0f : -999999f;
+
+            actions[(int)Directions.Down] =
+                state.South ? 0.0f : -999999f;
+
+            actions[(int)Directions.Right] =
+                state.East ? 0.0f : -999999f;
+
+            actions[(int)Directions.Left] =
+                state.West ? 0.0f : -999999f;
+
+            return actions;
         }
+
 
         private KeyValuePair<int, float> MaxByValue(Dictionary<int, float> dictionary)
         {
@@ -336,7 +347,7 @@ namespace GrupoH
 
                 if (!_qTable.ContainsKey(state))
                 {
-                    _qTable[state] = InitializeState();
+                    _qTable[state] = InitializeState(state);
                 }
 
                 _qTable[state][actionUp] = qUp;
