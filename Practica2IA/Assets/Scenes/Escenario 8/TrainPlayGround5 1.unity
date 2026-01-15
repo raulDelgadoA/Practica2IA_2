@@ -3922,15 +3922,15 @@ MonoBehaviour:
   qLearningTrainerClass: GrupoH.MyTrainer, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
     PublicKeyToken=null
   showSimulation: 0
-  agentSpeed: 300
+  agentSpeed: 400
   train: 1
   algorithmParams:
     alpha: 0.2
     epsilon: 1
     gamma: 0.9
-    episodes: 100
+    episodes: 1000
     maxSteps: 500
-    episodesBetweenSaves: 10
+    episodesBetweenSaves: 100
 --- !u!4 &430024629
 Transform:
   m_ObjectHideFlags: 0

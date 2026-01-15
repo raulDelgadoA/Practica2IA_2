@@ -57,13 +57,14 @@ namespace GrupoH
 
         private void InitializeAllPossibleStates()
         {
-
             for (int i = 0; i < 256; i++)
             {
-                bool north = (i & 1) != 0;
-                bool south = (i & 2) != 0;
-                bool east = (i & 4) != 0;
-                bool west = (i & 8) != 0;
+                // Extraemos la informacion de los bits
+                bool north = (i & 1) != 0;      // Bit 0: CanMoveNorth
+                bool south = (i & 2) != 0;      // Bit 1: CanMoveSouth
+                bool east = (i & 4) != 0;       // Bit 2: CanMoveEast
+                bool west = (i & 8) != 0;       // Bit 3: CanMoveWest
+
                 bool fromNorth = (i & 16) != 0;
                 bool fromSouth = (i & 32) != 0;
                 bool fromEast = (i & 64) != 0;
@@ -71,13 +72,14 @@ namespace GrupoH
 
                 var state = (north, south, east, west, fromNorth, fromSouth, fromEast, fromWest);
 
-
+                // Si el estado no existe, lo creamos YA con los castigos por muro
                 if (!_qTable.ContainsKey(state))
                 {
-                    _qTable[state] = InitializeState();
+                    // Pasamos north, south, east, west para saber que direcciones bloquear
+                    _qTable[state] = InitializeState(north, south, east, west);
                 }
             }
-            Debug.Log($"Tabla Q Inicializada completa con {_qTable.Count} estados.");
+            Debug.Log($"Tabla Q Inicializada completa con {_qTable.Count} estados y penalizaciones por muro.");
         }
 
         public void DoStep(bool train)
@@ -125,10 +127,9 @@ namespace GrupoH
 
             var nextState = GetState(nextPosition);
 
-
             if (!_qTable.ContainsKey(nextState))
             {
-                _qTable[nextState] = InitializeState();
+                _qTable[nextState] = InitializeState(nextState.Item1, nextState.Item2, nextState.Item3, nextState.Item4);
             }
 
             float maxFutureQ = _qTable[nextState].Values.Max();
@@ -199,7 +200,7 @@ namespace GrupoH
 
             if (!_qTable.ContainsKey(state))
             {
-                _qTable[state] = InitializeState();
+                _qTable[state] = InitializeState(state.Item1, state.Item2, state.Item3, state.Item4);
             }
 
             if (_random.NextDouble() < _parametros.epsilon)
@@ -214,13 +215,17 @@ namespace GrupoH
             }
         }
 
-        private Dictionary<int, float> InitializeState()
+        private Dictionary<int, float> InitializeState(bool canNorth, bool canSouth, bool canEast, bool canWest)
         {
             var state = new Dictionary<int, float>();
-            foreach (int action in new[] { (int)Directions.Up, (int)Directions.Down, (int)Directions.Right, (int)Directions.Left })
-            {
-                state[action] = 0.0f;
-            }
+            float penalty = -99999f; // Valor muy negativo para muros
+
+            // Si puede moverse (true), peso 0. Si es muro (false), peso -99999.
+            state[(int)Directions.Up] = canNorth ? 0.0f : penalty;
+            state[(int)Directions.Down] = canSouth ? 0.0f : penalty;
+            state[(int)Directions.Right] = canEast ? 0.0f : penalty;
+            state[(int)Directions.Left] = canWest ? 0.0f : penalty;
+
             return state;
         }
 
@@ -336,7 +341,7 @@ namespace GrupoH
 
                 if (!_qTable.ContainsKey(state))
                 {
-                    _qTable[state] = InitializeState();
+                    _qTable[state] = InitializeState(north, south, east, west);
                 }
 
                 _qTable[state][actionUp] = qUp;
