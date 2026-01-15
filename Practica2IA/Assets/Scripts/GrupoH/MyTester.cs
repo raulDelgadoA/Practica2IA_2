@@ -24,7 +24,6 @@ namespace GrupoH
             Debug.Log("MyTester: initialized with Q-Table loaded.");
         }
 
-        //
         public CellInfo GetNextStep(CellInfo currentPosition, CellInfo otherPosition)
         {
             var state = GetState(currentPosition, otherPosition);
@@ -58,6 +57,7 @@ namespace GrupoH
             return (canMoveNorth, canMoveSouth, canMoveEast, canMoveWest, fromNorth, fromSouth, fromEast, fromWest);
         }
 
+        //Selecciona la acción que tengo mayor valor en Q
         private int SelectBestAction(Dictionary<int, float> actions)
         {
             return actions.Aggregate((max, current) => current.Value > max.Value ? current : max).Key;

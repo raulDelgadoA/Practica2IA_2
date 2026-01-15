@@ -17,7 +17,7 @@ namespace GrupoH
         private WorldInfo _worldInfo;
         private INavigationAlgorithm _navigationAlgorithm;
 
-        // Tupla de 8 booleanos
+        //tupla de 8 booleanos
         private Dictionary<(bool North, bool South, bool East, bool West, bool FromNorth, bool FromSouth, bool FromEast, bool FromWest), Dictionary<int, float>> _qTable;
 
         private System.Random _random;
@@ -59,11 +59,10 @@ namespace GrupoH
         {
             for (int i = 0; i < 256; i++)
             {
-                // Extraemos la informacion de los bits
-                bool north = (i & 1) != 0;      // Bit 0: CanMoveNorth
-                bool south = (i & 2) != 0;      // Bit 1: CanMoveSouth
-                bool east = (i & 4) != 0;       // Bit 2: CanMoveEast
-                bool west = (i & 8) != 0;       // Bit 3: CanMoveWest
+                bool north = (i & 1) != 0;
+                bool south = (i & 2) != 0;
+                bool east = (i & 4) != 0;
+                bool west = (i & 8) != 0;
 
                 bool fromNorth = (i & 16) != 0;
                 bool fromSouth = (i & 32) != 0;
@@ -72,10 +71,10 @@ namespace GrupoH
 
                 var state = (north, south, east, west, fromNorth, fromSouth, fromEast, fromWest);
 
-                // Si el estado no existe, lo creamos YA con los castigos por muro
+                //si el estado no existe, lo creamos ya con la penalización de -99999
                 if (!_qTable.ContainsKey(state))
                 {
-                    // Pasamos north, south, east, west para saber que direcciones bloquear
+                    //Pasamos north, south, east, west para saber que direcciones blquear
                     _qTable[state] = InitializeState(north, south, east, west);
                 }
             }
@@ -146,6 +145,7 @@ namespace GrupoH
             NuevaPosHumano();
         }
 
+        //a veces le daba por moverse en diagonal
         private bool IsCardinalDirection(Directions direction)
         {
             return direction == Directions.Up ||
@@ -218,9 +218,9 @@ namespace GrupoH
         private Dictionary<int, float> InitializeState(bool canNorth, bool canSouth, bool canEast, bool canWest)
         {
             var state = new Dictionary<int, float>();
-            float penalty = -99999f; // Valor muy negativo para muros
+            float penalty = -99999f; //Valor muy negativo para muros
 
-            // Si puede moverse (true), peso 0. Si es muro (false), peso -99999.
+            //Si puede movrese (true), peso 0. Si es muro (false), peso -99999
             state[(int)Directions.Up] = canNorth ? 0.0f : penalty;
             state[(int)Directions.Down] = canSouth ? 0.0f : penalty;
             state[(int)Directions.Right] = canEast ? 0.0f : penalty;
@@ -255,6 +255,7 @@ namespace GrupoH
             }
         }
 
+        //se calcula la distancia entre ellos para luego asignarles recompensas negativas si se acerca o positivas si se aleja
         private int DistanceToOther(CellInfo position)
         {
             return Math.Abs(position.x - OtherPosition.x) + Math.Abs(position.y - OtherPosition.y);
@@ -294,7 +295,7 @@ namespace GrupoH
                     writer.WriteLine(string.Join(";", values));
                 }
 
-                // Debug.Log($"Tabla Q guardada correctamente en {filePath}");
+                //Debug.Log($"Tabla Q guardada correctamente en {filePath}");
             }
             catch (Exception ex)
             {
@@ -316,7 +317,7 @@ namespace GrupoH
             while ((line = reader.ReadLine()) != null)
             {
                 var parts = line.Split(';');
-                if (parts.Length < 12) continue; // Evitar lineas corruptas
+                if (parts.Length < 12) continue; //evitar lineas corruptas
 
                 bool north = bool.Parse(parts[0]);
                 bool south = bool.Parse(parts[1]);
